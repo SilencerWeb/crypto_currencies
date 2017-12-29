@@ -42,10 +42,10 @@ class Prices extends React.Component {
       });
   };
 
-  onPriceControlClick = (control) => {
+  onPriceControlClick = (e) => {
     const exchanges = [...this.state.exchanges];
     exchanges.forEach((exchange) => {
-      return exchange.isActive = exchange.name === control;
+      return exchange.isActive = exchange.name === e.target.dataset.control;
     });
 
     this.setState({
