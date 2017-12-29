@@ -3,46 +3,43 @@ import React from 'react';
 import { PricesControl } from 'components/prices/prices-control';
 import { PricesPair } from 'components/prices/prices-pair';
 
+import { api } from 'helpers/api/api';
+
 class Prices extends React.Component {
   state = {
     exchanges: [
       {
         name: 'exmo',
-        pairs: [
-          {
-            name: 'BTC/USD',
-            high: 602.082,
-            low: 584.51011695,
-            avg: 591.14698808
-          },
-          {
-            name: 'XRP/USD',
-            high: 1.34,
-            low: 0.64,
-            avg: 1
-          }
-        ],
+        tickers: [],
         isActive: true
       },
       {
+        name: 'bittrex',
+        tickers: [],
+        isActive: false
+      },
+      {
         name: 'kraken',
-        pairs: [
-          {
-            name: 'BTC/USD',
-            high: 642.082,
-            low: 544.51011695,
-            avg: 541.14698808
-          },
-          {
-            name: 'XRP/USD',
-            high: 2.34,
-            low: 1.64,
-            avg: 2
-          }
-        ],
+        tickers: [],
         isActive: false
       }
     ]
+  };
+
+  updateTickers = () => {
+    const exchanges = [...this.state.exchanges];
+    const activeControlIndex = exchanges.findIndex((exchange) => {
+      return exchange.isActive;
+    });
+
+    api(exchanges[activeControlIndex].name, 'getTickers')
+      .then((tickers) => {
+        exchanges[activeControlIndex].tickers = tickers;
+
+        this.setState({
+          exchanges: exchanges
+        });
+      });
   };
 
   onPriceControlClick = (control) => {
@@ -54,17 +51,28 @@ class Prices extends React.Component {
     this.setState({
       exchanges: exchanges
     });
+
+    this.updateTickers();
   };
+
+  componentDidMount() {
+    this.updateTickers();
+  }
 
   render() {
     const pricesActiveControl = this.state.exchanges.map((exchange) => {
-      return exchange.isActive ? <h1>{ exchange.name }</h1> : null;
+      return exchange.isActive ? <h1 key={ exchange.name }>{ exchange.name }</h1> : null;
     });
 
     const pricesControls = (
       <div>
         { this.state.exchanges.map((exchange) => {
-          return <PricesControl name={ exchange.name } onClick={ this.onPriceControlClick }/>;
+          return (
+            <PricesControl
+              name={ exchange.name }
+              key={ exchange.name }
+              onClick={ !exchange.isActive ? this.onPriceControlClick : null }/>
+          );
         }) }
       </div>
     );
@@ -72,7 +80,7 @@ class Prices extends React.Component {
     const pricesPairs = (
       <div>
         { this.state.exchanges.map((exchange) => {
-          return exchange.isActive ? exchange.pairs.map((pair) => {
+          return exchange.isActive ? exchange.tickers.map((pair) => {
             return <PricesPair pair={ pair } key={ pair.name }/>;
           }) : null;
         }) }

@@ -5,9 +5,11 @@ function PricesPair(props) {
   return (
     <div className={ props.className }>
       <h2>{ props.pair.name }</h2>
+      <div>Bue: { props.pair.buy }</div>
+      <div>Sell: { props.pair.sell }</div>
       <div>High: { props.pair.high }</div>
-      <div>Avg: { props.pair.avg }</div>
       <div>Low: { props.pair.low }</div>
+      <div>Vol: { props.pair.vol }</div>
     </div>
   );
 }
