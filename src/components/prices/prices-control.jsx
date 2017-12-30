@@ -4,7 +4,7 @@ function PricesControl(props) {
   return (
     <button
       data-control={ props.name }
-      name={ props.name }
+      data-type={ props.type }
       onClick={ props.onClick }>
       { props.name }
     </button>
