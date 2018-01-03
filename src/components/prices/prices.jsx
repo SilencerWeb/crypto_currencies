@@ -189,7 +189,7 @@ class Prices extends React.Component {
   componentDidMount = () => {
     this.loadTickers();
 
-    this.loadTickersInterval = setInterval(this.loadTickers, 1500);
+    this.loadTickersInterval = setInterval(this.loadTickers, 3000);
   };
 
   componentWillUnmount = () => {

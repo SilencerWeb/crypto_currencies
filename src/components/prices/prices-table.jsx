@@ -2,6 +2,8 @@ import React from 'react';
 
 import { PricesSortDirection } from 'components/prices/prices-sort-direction';
 
+import { scientificToDecimal } from 'helpers/helpers';
+
 function PricesTable(props) {
   return (
     <table className="table table-hover">
@@ -42,11 +44,11 @@ function PricesTable(props) {
         return (
           <tr key={ ticker.name }>
             <th>{ ticker.name }</th>
-            <td>{ ticker.buy }</td>
-            <td>{ ticker.sell }</td>
-            <td>{ ticker.high }</td>
-            <td>{ ticker.low }</td>
-            <td>{ ticker.vol }</td>
+            <td>{ scientificToDecimal(ticker.buy) }</td>
+            <td>{ scientificToDecimal(ticker.sell) }</td>
+            <td>{ scientificToDecimal(ticker.high) }</td>
+            <td>{ scientificToDecimal(ticker.low) }</td>
+            <td>{ scientificToDecimal(ticker.vol) }</td>
           </tr>
         );
       }) }
