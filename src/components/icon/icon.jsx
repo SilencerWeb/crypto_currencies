@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-function Icon(props) {
+function _Icon(props) {
   return (
     <svg className={ props.className }>
       <use xlinkHref={ '#' + props.icon.id }/>
@@ -9,7 +9,7 @@ function Icon(props) {
   );
 }
 
-const styledIcon = styled(Icon)`
+export const Icon = styled(_Icon)`
   display: inline-block;
   vertical-align: top;
   
@@ -20,6 +20,4 @@ const styledIcon = styled(Icon)`
   `};
   
   fill: currentColor;
-`;
-
-export { styledIcon as Icon };
+`;;

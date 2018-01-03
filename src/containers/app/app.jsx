@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { Prices } from 'components/prices/prices';
+import { Tickers } from 'components/tickers/tickers';
 
 class App extends React.Component {
   render() {
     return (
       <div>
-        <Prices/>
+        <Tickers/>
       </div>
     );
   }

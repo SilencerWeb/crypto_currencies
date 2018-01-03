@@ -6,7 +6,7 @@ import { Icon } from 'components/icon/icon';
 import arrowTop from 'assets/svg/arrow-top.svg';
 import arrowBottom from 'assets/svg/arrow-bottom.svg';
 
-function PricesSortDirection(props) {
+function _TickersSortDirection(props) {
   let icon = null;
 
   if (props.direction === 'down') {
@@ -24,7 +24,7 @@ function PricesSortDirection(props) {
   );
 }
 
-const styledPricesSortDirection = styled(PricesSortDirection)`
+export const TickersSortDirection = styled(_TickersSortDirection)`
   display: inline-flex;
   align-items: center;
   background: none;
@@ -36,6 +36,4 @@ const styledPricesSortDirection = styled(PricesSortDirection)`
   &:focus {
     outline: none;
   }
-`;
-
-export { styledPricesSortDirection as PricesSortDirection };
+`;;
