@@ -1,8 +1,9 @@
-import * as exmo from 'helpers/api/exmo';
-import * as bittrex from 'helpers/api/bittrex';
-import * as kraken from 'helpers/api/kraken';
+import * as exmo from 'helpers/api/exchanges/exmo';
+import * as bittrex from 'helpers/api/exchanges/bittrex';
+import * as kraken from 'helpers/api/exchanges/kraken';
 
-/* Ticker template:
+/*
+Ticker template:
   CURR_CURR: {
     name: String,
     buy: Number,
@@ -13,7 +14,7 @@ import * as kraken from 'helpers/api/kraken';
   }
 */
 
-const api = (exchange, method) => {
+const exchangesApi = (exchange, method) => {
   switch (exchange) {
     case 'exmo':
       return exmo[method]();
@@ -24,4 +25,4 @@ const api = (exchange, method) => {
   }
 };
 
-export { api };
+export { exchangesApi };

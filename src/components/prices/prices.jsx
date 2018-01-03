@@ -3,26 +3,11 @@ import React from 'react';
 import { PricesControl } from 'components/prices/prices-control';
 import { PricesTable } from 'components/prices/prices-table';
 
-import { api } from 'helpers/api/api';
+import { exchangesApi } from 'helpers/api/exchanges-api';
 
 class Prices extends React.Component {
   state = {
     exchanges: [
-      {
-        name: 'exmo',
-        tickers: [],
-        currencies: [
-          {
-            name: 'all',
-            isActive: true
-          }
-        ],
-        sort: {
-          category: 'name',
-          type: 'down'
-        },
-        isActive: true
-      },
       {
         name: 'bittrex',
         tickers: [],
@@ -33,8 +18,38 @@ class Prices extends React.Component {
           }
         ],
         sort: {
-          category: 'name',
-          type: 'down'
+          category: '',
+          direction: ''
+        },
+        isActive: true
+      },
+      {
+        name: 'exmo',
+        tickers: [],
+        currencies: [
+          {
+            name: 'all',
+            isActive: true
+          }
+        ],
+        sort: {
+          category: '',
+          direction: ''
+        },
+        isActive: false
+      },
+      {
+        name: 'kraken',
+        tickers: [],
+        currencies: [
+          {
+            name: 'all',
+            isActive: true
+          }
+        ],
+        sort: {
+          category: '',
+          direction: ''
         },
         isActive: false
       }
@@ -42,28 +57,26 @@ class Prices extends React.Component {
     tickers: []
   };
 
-  sortTickers = (category, type) => {
+  sortTickers = (category, direction) => {
     const exchanges = this.state.exchanges;
     const activeExchangeIndex = exchanges.findIndex((exchange) => {
       return exchange.isActive;
     });
 
-    const tickers = this.state.tickers;
+    const tickers = this.state.tickers.sort((ticker1, ticker2) => {
+      const category1 = +ticker1[category];
+      const category2 = +ticker2[category];
 
-    tickers.sort((ticker1, ticker2) => {
-      ticker1 = isNaN(+ticker1) ? ticker1 : +ticker1;
-      ticker2 = isNaN(+ticker2) ? ticker2 : +ticker2;
-
-      if (type === 'down') {
-        return ticker1[category] < ticker2[category] ? 1 : -1;
-      } else {
-        return ticker1[category] > ticker2[category] ? 1 : -1;
+      if (direction === 'down') {
+        return category2 - category1;
+      } else if (direction === 'up') {
+        return category1 - category2;
       }
     });
 
     exchanges[activeExchangeIndex].sort = {
       category: category,
-      type: type
+      direction: direction
     };
 
     this.setState({
@@ -116,9 +129,9 @@ class Prices extends React.Component {
 
     this.setState({
       tickers: tickers
+    }, () => {
+      this.sortTickers(exchanges[activeExchangeIndex].sort.category, exchanges[activeExchangeIndex].sort.direction);
     });
-
-    this.sortTickers(exchanges[activeExchangeIndex].sort.category, exchanges[activeExchangeIndex].sort.type);
   };
 
   loadTickers = () => {
@@ -127,53 +140,61 @@ class Prices extends React.Component {
       return exchange.isActive;
     });
 
-    api(exchanges[activeExchangeIndex].name, 'getTickers')
+    exchangesApi(exchanges[activeExchangeIndex].name, 'getTickers')
       .then((json) => {
         exchanges[activeExchangeIndex].tickers = json;
 
         this.setState({
           exchanges: exchanges
+        }, () => {
+          this.updateCurrencies();
+          this.updateTickers();
         });
-
-        this.updateCurrencies();
-        this.updateTickers();
       });
   };
 
-  onPriceControlClick = (e) => {
+  onPriceControlClick = (control, type) => {
     const exchanges = this.state.exchanges;
 
-    if (e.target.dataset.type === 'exchange') {
+    if (type === 'exchange') {
       exchanges.forEach((exchange) => {
-        return exchange.isActive = exchange.name === e.target.dataset.control;
+        return exchange.isActive = exchange.name === control;
       });
-    } else {
+    } else if (type === 'currency') {
       const activeExchangeIndex = exchanges.findIndex((exchange) => {
         return exchange.isActive;
       });
 
       exchanges[activeExchangeIndex].currencies.forEach((currency) => {
-        return currency.isActive = currency.name === e.target.dataset.control;
+        return currency.isActive = currency.name === control;
       });
     }
 
     this.setState({
       exchanges: exchanges,
       tickers: []
+    }, () => {
+      const activeExchange = this.state.exchanges.find((exchange) => {
+        return exchange.isActive;
+      });
+
+      if (activeExchange.tickers.length) {
+        this.updateTickers();
+      } else {
+        this.loadTickers();
+      }
     });
-
-    this.updateTickers();
   };
 
-  onSortButtonClick = (e) => {
-    this.sortTickers(e.target.dataset.category, e.target.dataset.type);
-  };
-
-  componentDidMount() {
+  componentDidMount = () => {
     this.loadTickers();
 
-    setInterval(this.loadTickers, 1500);
-  }
+    this.loadTickersInterval = setInterval(this.loadTickers, 1500);
+  };
+
+  componentWillUnmount = () => {
+    clearInterval(this.loadTickersInterval);
+  };
 
   render() {
     const pricesExchanges = (
@@ -210,7 +231,7 @@ class Prices extends React.Component {
       </div>
     );
 
-    const pricesTable = <PricesTable tickers={ this.state.tickers } onClick={ this.onSortButtonClick }/>;
+    const pricesTable = <PricesTable tickers={ this.state.tickers } onSortTypeButtonClick={ this.sortTickers }/>;
 
     return (
       <div>

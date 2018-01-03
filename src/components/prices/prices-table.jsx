@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PricesSortTypeButton } from 'components/prices/prices-sort-type-button';
+import { PricesSortDirection } from 'components/prices/prices-sort-direction';
 
 function PricesTable(props) {
   return (
@@ -9,33 +9,31 @@ function PricesTable(props) {
       <tr>
         <th>
           <span>Name</span>
-          <PricesSortTypeButton category='name' type='up' onClick={ props.onClick }/>
-          <PricesSortTypeButton category='name' type='down' onClick={ props.onClick }/>
         </th>
         <th>
           <span>Buy price</span>
-          <PricesSortTypeButton category='buy' type='up' onClick={ props.onClick }/>
-          <PricesSortTypeButton category='buy' type='down' onClick={ props.onClick }/>
+          <PricesSortDirection category='buy' direction='up' onClick={ props.onSortTypeButtonClick }/>
+          <PricesSortDirection category='buy' direction='down' onClick={ props.onSortTypeButtonClick }/>
         </th>
         <th>
           <span>Sell price</span>
-          <PricesSortTypeButton category='sell' type='up' onClick={ props.onClick }/>
-          <PricesSortTypeButton category='sell' type='down' onClick={ props.onClick }/>
+          <PricesSortDirection category='sell' direction='up' onClick={ props.onSortTypeButtonClick }/>
+          <PricesSortDirection category='sell' direction='down' onClick={ props.onSortTypeButtonClick }/>
         </th>
         <th>
           <span>High price</span>
-          <PricesSortTypeButton category='high' type='up' onClick={ props.onClick }/>
-          <PricesSortTypeButton category='high' type='down' onClick={ props.onClick }/>
+          <PricesSortDirection category='high' direction='up' onClick={ props.onSortTypeButtonClick }/>
+          <PricesSortDirection category='high' direction='down' onClick={ props.onSortTypeButtonClick }/>
         </th>
         <th>
           <span>Low price</span>
-          <PricesSortTypeButton category='low' type='up' onClick={ props.onClick }/>
-          <PricesSortTypeButton category='low' type='down' onClick={ props.onClick }/>
+          <PricesSortDirection category='low' direction='up' onClick={ props.onSortTypeButtonClick }/>
+          <PricesSortDirection category='low' direction='down' onClick={ props.onSortTypeButtonClick }/>
         </th>
         <th>
           <span>Volume</span>
-          <PricesSortTypeButton category='vol' type='up' onClick={ props.onClick }/>
-          <PricesSortTypeButton category='vol' type='down' onClick={ props.onClick }/>
+          <PricesSortDirection category='vol' direction='up' onClick={ props.onSortTypeButtonClick }/>
+          <PricesSortDirection category='vol' direction='down' onClick={ props.onSortTypeButtonClick }/>
         </th>
       </tr>
       </thead>
