@@ -1,9 +1,8 @@
 import React from 'react';
+import axios from 'axios';
 
 import { TickersTable } from 'components/tickers/tickers-table';
 import { Button } from 'components/button/button';
-
-import { exchangesApi } from 'helpers/api/exchanges-api';
 
 class Tickers extends React.Component {
   state = {
@@ -27,6 +26,27 @@ class Tickers extends React.Component {
           direction: ''
         },
         isActive: false
+      },
+      {
+        name: 'kraken',
+        tickers: [],
+        tickersControls: [],
+        sort: {
+          category: '',
+          direction: ''
+        },
+        isActive: false
+      }
+    ],
+    tickers: [],
+    tickersControls: [
+      {
+        name: 'favorite',
+        isActive: false
+      },
+      {
+        name: 'all',
+        isActive: false
       }
     ],
     availableCurrencies: [
@@ -36,8 +56,7 @@ class Tickers extends React.Component {
       'USD',
       'RUB',
       'UAH'
-    ],
-    tickers: []
+    ]
   };
 
   sortTickers = (category, direction) => {
@@ -72,9 +91,12 @@ class Tickers extends React.Component {
     const exchanges = this.state.exchanges;
 
     exchanges.forEach((exchange, i) => {
-      const tickersControls = exchanges[i].tickersControls;
+      const tickersControls = [
+        ...this.state.tickersControls,
+        ...exchange.tickersControls
+      ];
 
-      exchanges[i].tickers.forEach((ticker) => {
+      exchange.tickers.forEach((ticker) => {
         ticker.name.split('_').forEach((currency) => {
           tickersControls.every((tickersControl) => {
             return tickersControl.name !== currency;
@@ -102,13 +124,13 @@ class Tickers extends React.Component {
     });
 
     const tickersControls = exchanges[activeExchangeIndex].tickersControls;
-    const activeTickersControl = tickersControls.map((tickersControl) => {
-      return tickersControl.isActive ? tickersControl.name : null;
-    }).join('');
+    const activeTickersControl = tickersControls.find((tickersControl) => {
+      return tickersControl.isActive;
+    });
 
-    const tickers = activeTickersControl && activeTickersControl.toLocaleLowerCase() !== 'all' ?
+    const tickers = activeTickersControl && activeTickersControl.name.toLowerCase() !== 'all' ?
       exchanges[activeExchangeIndex].tickers.filter((ticker) => {
-        return ~ticker.name.toLowerCase().indexOf(activeTickersControl.toLowerCase());
+        return ~ticker.name.toLowerCase().indexOf(activeTickersControl.name.toLowerCase());
       }) : exchanges[activeExchangeIndex].tickers;
 
     this.setState({
@@ -118,41 +140,37 @@ class Tickers extends React.Component {
     });
   };
 
-  loadTickers = (componentDidMount = false) => {
+  loadTickers = (loadExchangeIndex) => {
     const exchanges = this.state.exchanges;
-    const activeExchangeIndex = exchanges.findIndex((exchange) => {
+    const exchangeIndex = loadExchangeIndex ? loadExchangeIndex : exchanges.findIndex((exchange) => {
       return exchange.isActive;
     });
 
-    Promise.resolve()
-      .then(() => {
-        if (componentDidMount) {
-          const promises = exchanges.map((exchange, i) => {
-            return exchangesApi(exchange.name, 'getTickers')
-              .then((json) => {
-                return exchanges[i].tickers = json;
-              });
-          });
-
-          return Promise.all(promises);
-        } else {
-          return exchangesApi(exchanges[activeExchangeIndex].name, 'getTickers')
-            .then((json) => {
-              exchanges[activeExchangeIndex].tickers = json;
-            });
-        }
+    return axios.get(`/api/${ exchanges[exchangeIndex].name}/gettickers`)
+      .then((json) => {
+        exchanges[exchangeIndex].tickers = json.data;
       })
       .then(() => {
         this.setState({
           exchanges: exchanges
         }, () => {
-          if (componentDidMount) {
+          if (!exchanges[exchangeIndex].tickersControls.length) {
             this.updateTickersControls();
           }
 
           this.updateTickers();
         });
       });
+  };
+
+  loadAllTickers = () => {
+    const exchanges = this.state.exchanges;
+
+    return Promise.all(exchanges.map((exchange, i) => {
+      if (!exchange.tickers.length) {
+        return this.loadTickers(i);
+      }
+    }));
   };
 
   onExchangeControlClick = (e) => {
@@ -189,9 +207,13 @@ class Tickers extends React.Component {
   };
 
   componentDidMount = () => {
-    this.loadTickers(true);
-
-    this.loadTickersInterval = setInterval(this.loadTickers, 3000);
+    this.loadTickers()
+      .then(() => {
+        return this.loadAllTickers();
+      })
+      .then(() => {
+        this.loadTickersInterval = setInterval(this.loadTickers, 3000);
+      });
   };
 
   componentWillUnmount = () => {
