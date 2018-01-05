@@ -39,23 +39,19 @@ class Tickers extends React.Component {
       }
     ],
     tickers: [],
-    tickersControls: [
-      {
-        name: 'favorite',
-        isActive: false
-      },
-      {
-        name: 'all',
-        isActive: false
-      }
-    ],
-    availableCurrencies: [
+    availableTickersControls: [
+      'favorite',
+      'all',
       'BTC',
       'ETH',
       'USDT',
       'USD',
       'RUB',
       'UAH'
+    ],
+    defaultTickersControls: [
+      'favorite',
+      'all'
     ]
   };
 
@@ -87,29 +83,39 @@ class Tickers extends React.Component {
     });
   };
 
-  updateTickersControls = () => {
+  updateTickersControls = (updateExchangeIndex) => {
     const exchanges = this.state.exchanges;
+    const exchangeIndex = updateExchangeIndex ? updateExchangeIndex : exchanges.findIndex((exchange) => {
+      return exchange.isActive;
+    });
 
-    exchanges.forEach((exchange, i) => {
-      const tickersControls = [
-        ...this.state.tickersControls,
-        ...exchange.tickersControls
+    const tickersControls = exchanges[exchangeIndex].tickersControls;
+
+    exchanges[exchangeIndex].tickers.forEach((ticker) => {
+      const tickerCurrencies = ticker.name.split('_');
+      const possibleTickerControls = [
+        ...this.state.defaultTickersControls,
+        ...tickerCurrencies
       ];
 
-      exchange.tickers.forEach((ticker) => {
-        ticker.name.split('_').forEach((currency) => {
-          tickersControls.every((tickersControl) => {
-            return tickersControl.name !== currency;
-          }) && this.state.availableCurrencies.some((availableCurrency) => {
-            return currency === availableCurrency;
-          }) && tickersControls.push({
-            name: currency,
+      possibleTickerControls.forEach((possibleTickerControl) => {
+        const isNew = tickersControls.every((tickersControl) => {
+          return tickersControl.name !== possibleTickerControl;
+        });
+
+        if (isNew) {
+          const isAvailable = this.state.availableTickersControls.some((availableCurrency) => {
+            return possibleTickerControl === availableCurrency;
+          });
+
+          isAvailable && tickersControls.push({
+            name: possibleTickerControl,
             isActive: false
           });
-        });
+        }
       });
 
-      exchanges[i].tickersControls = tickersControls;
+      exchanges[exchangeIndex].tickersControls = tickersControls;
     });
 
     this.setState({
@@ -155,7 +161,7 @@ class Tickers extends React.Component {
           exchanges: exchanges
         }, () => {
           if (!exchanges[exchangeIndex].tickersControls.length) {
-            this.updateTickersControls();
+            this.updateTickersControls(exchangeIndex);
           }
 
           this.updateTickers();

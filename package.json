@@ -59,7 +59,7 @@
     "start": "node client/scripts/start.js",
     "build": "node client/scripts/build.js",
     "test": "node client/scripts/test.js --env=jsdom",
-    "server": "nodemon server/server.js",
+    "server": "nodemon server",
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn start\"",
     "deploy": "yarn build && gh-pages -d client/build"
   },
