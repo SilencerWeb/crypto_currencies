@@ -155,7 +155,7 @@ class Tickers extends React.Component {
       return exchange.isActive;
     });
 
-    return axios.get(`/api/${ exchanges[exchangeIndex].name}/gettickers`)
+    return axios.get(`/api/${ exchanges[exchangeIndex].name}/getTickers`)
       .then((json) => {
         exchanges[exchangeIndex].tickers = json.data;
       })

@@ -1,9 +1,17 @@
+const EXCHANGES = [
+  'bittrex',
+  'exmo',
+  'kraken'
+];
+
 const {
   exchanges: exchanges
 } = require('../controllers');
 
 module.exports = app => {
-  app.get('/api/bittrex/gettickers', exchanges.getBittrexTickers);
-  app.get('/api/exmo/gettickers', exchanges.getExmoTickers);
-  app.get('/api/kraken/gettickers', exchanges.getKrakenTickers);
+  EXCHANGES.forEach((exchange) => {
+    app.get(`/api/${exchange}/getTickers`, (req, res) => {
+      exchanges[exchange].getTickers().then((tickers) => res.send(tickers));
+    });
+  });
 };
