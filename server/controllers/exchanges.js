@@ -61,25 +61,31 @@ module.exports = {
       .then((response) => {
         const { data: { result: assetPairs } } = response;
 
-        const tickersName = [];
-        const tickersBase = [];
+        const tickersNames = [];
+        const tickersBases = [];
+        const tickersQuotes = [];
 
         Object.keys(assetPairs).forEach((pairName) => {
           if (!~assetPairs[pairName].altname.indexOf('.d')) {
-            tickersName.push(assetPairs[pairName].altname);
-            tickersBase.push(assetPairs[pairName].base);
+            tickersNames.push(assetPairs[pairName].altname);
+            tickersBases.push(assetPairs[pairName].base);
+            tickersQuotes.push(assetPairs[pairName].quote);
           }
         });
 
-        axios.get(`${api.getTickers.kraken}?pair=${tickersName.join(',')}`)
+        axios.get(`${api.getTickers.kraken}?pair=${tickersNames.join(',')}`)
           .then((response) => {
             const { data: { result: tickersFromResponse } } = response;
 
             const tickersToSend = Object.keys(tickersFromResponse).map((key, i) => {
               const ticker = tickersFromResponse[key];
-              const tickerBase = tickersBase[i];
+              
+              const tickerBase = tickersBases[i][0] === 'X' || tickersBases[i][0] === 'Z' ?
+                tickersBases[i].slice(1) : tickersBases[i];
+              const tickerQuote = tickersQuotes[i][0] === 'X' || tickersQuotes[i][0] === 'Z' ?
+                tickersQuotes[i].slice(1) : tickersQuotes[i];
 
-              const tickerName = key.replace(tickerBase, `${tickerBase}_`);
+              const tickerName = `${tickerBase}_${tickerQuote}`;
 
               return {
                 name: tickerName,

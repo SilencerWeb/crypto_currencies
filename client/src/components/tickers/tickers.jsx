@@ -1,8 +1,11 @@
 import React from 'react';
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 
 import { TickersTable } from 'components/tickers/tickers-table';
 import { Button } from 'components/button/button';
+
+axiosRetry(axios);
 
 class Tickers extends React.Component {
   state = {
@@ -93,12 +96,12 @@ class Tickers extends React.Component {
 
     exchanges[exchangeIndex].tickers.forEach((ticker) => {
       const tickerCurrencies = ticker.name.split('_');
-      const possibleTickerControls = [
+      const possibleTickersControls = [
         ...this.state.defaultTickersControls,
         ...tickerCurrencies
       ];
 
-      possibleTickerControls.forEach((possibleTickerControl) => {
+      possibleTickersControls.forEach((possibleTickerControl) => {
         const isNew = tickersControls.every((tickersControl) => {
           return tickersControl.name !== possibleTickerControl;
         });
@@ -227,7 +230,7 @@ class Tickers extends React.Component {
   };
 
   render() {
-    const exchangeControls = (
+    const exchangesControls = (
       <div>
         { this.state.exchanges.map((exchange) => {
           return (
@@ -269,7 +272,7 @@ class Tickers extends React.Component {
 
     return (
       <div>
-        { exchangeControls }
+        { exchangesControls }
         { activeExchange }
         { tickersControls }
         { tickersTable }
